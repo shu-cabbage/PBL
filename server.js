@@ -21,7 +21,7 @@ io.on("connection", (socket) => {
     console.log("connection: ", socket.id);
     console.log("run fs.watch");
     socket.emit("first_send", "");
-    fs.watch(__dirname + "/output.json", {persistent: true}, function(){
+    fs.watch(__dirname + "/data.json", {persistent: true}, function(){
         socket.emit("send_json", "");
     });
 });

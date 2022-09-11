@@ -1,10 +1,8 @@
-const table = document.getElementById("table");
-const td_status = document.getElementById("td_status");
 const socket = io();
 
 function socket_to_table(){
     let xhr = new XMLHttpRequest();
-    xhr.open("GET", "./output.json");
+    xhr.open("GET", "./data.json");
     xhr.send();
     xhr.onreadystatechange = function(){
         if(xhr.readyState == 4 && xhr.status == 200){
@@ -12,11 +10,13 @@ function socket_to_table(){
             td_status.innerHTML = json.status;
             switch (json.status){
                 case "running":
+                    td_status.style.color = "#000000";
                     td_status.style.backgroundColor = "#00FF00";
                     break;
 
                 case "stopped":
                     td_status.style.color = "#ff0000";
+                    td_status.style.backgroundColor = "#ffffff";
                     break;
             }
             table.innerHTML = ``;
