@@ -7,6 +7,7 @@ import qwiic_relay;
 import pi_servo_hat;
 import sys;
 import time;
+import json;
 
 """config"""
 start_btn_status =False; #始動ボタンが一度でも押されたかのステータス
@@ -29,6 +30,10 @@ myRelays = qwiic_relay.QwiicRelay(QUAD_SOLID_STATE_RELAY);
 servo = pi_servo_hat.PiServoHat();
 servo.restart();
 servo.move_servo_position(0,0);
+#json file
+json_file = open("data.json", "r");
+json_data = json.load(json_file);
+json_file.close();
 
 #比較
 def comparate(sensor_time):
@@ -38,14 +43,22 @@ def comparate(sensor_time):
     conveyor_time = 2; #センサからサーボまでかかる時間(s)  サーボとセンサの距離があまり遠くにならないようにしてほし　まあ好きに変えてくれ
 
     if (size - tolerance < sensor_time and sensor_time < size + tolerance):
+        json_data["details"].append({"value" : sensor_time, "status" : "OK"});
+        output_json = open("data.json", "w");
+        json.dump(json_data, output_json, indent=4);
+        output_json.flush();
         print("ok");
 
     else:
         wait_start = time.perf_counter();
+        json_data["details"].append({"value" : sensor_time, "status" : "Defective"});
+        output_json = open("data.json", "w");
+        json.dump(json_data, output_json, indent=4);
+        output_json.flush();
         print("bad");
         while True:
             print("waiting...");
-            if(time.perf_counter() - wait_start >= 2):
+            if(time.perf_counter() - wait_start >= conveyor_time):
                 break;
 
         print("servo start");
@@ -86,10 +99,18 @@ while True:
         conveyor_status = False;
         myRelays.set_all_relays_off();
         myRelays.set_relay_on(relay_RedRamp); #赤ランプ
+        json_data["status"] = "stopped";
+        output_json = open("data.json", "w");
+        json.dump(json_data, output_json, indent=4);
+        output_json.flush();
         print("stopped");
 
     #print("ready");
     if(GPIO.input(button_start) == 1 or start_btn_status == True): #始動ボタン押されている又は，押されたことがある
         start_btn_status = True; #推されたというステータス
         myRelays.set_relay_off(relay_RedRamp); #赤ランプ
+        json_data["status"] = "running";
+        output_json = open("data.json", "w");
+        json.dump(json_data, output_json, indent=4);
+        output_json.flush();
         sensor_func();
