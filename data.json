@@ -1,0 +1,45 @@
+{
+    "status": "running",
+    "details": [
+        {
+            "value": "aaa",
+            "status": "Defective"
+        },
+        {
+            "value": "vvv",
+            "status": "Defective"
+        },
+        {
+            "value": 0,
+            "status": "OK"
+        },
+        {
+            "value": 1,
+            "status": "OK"
+        },
+        {
+            "value": 2,
+            "status": "OK"
+        },
+        {
+            "value": 3,
+            "status": "OK"
+        },
+        {
+            "value": 0,
+            "status": "OK"
+        },
+        {
+            "value": 1,
+            "status": "OK"
+        },
+        {
+            "value": 0,
+            "status": "OK"
+        },
+        {
+            "value": 1,
+            "status": "OK"
+        }
+    ]
+}

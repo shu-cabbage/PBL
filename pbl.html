@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="utf-8">
+        <title>PBL</title>
+        <script src="/socket.io/socket.io.js"></script>
+        <style>
+            body{
+                text-align: center;
+            }
+            table{
+                border: 1px #000000 solid;
+                border-collapse: collapse;
+            }
+            td{
+                border: 1px #000000 solid;
+                height: 20px;
+                width: 150px;
+                text-align: center;
+                vertical-align: middle;
+                background: #eee;
+            }
+            tr{
+                border: 1px #000000 solid;
+            }
+            table tr:nth-child(odd) td{
+                background: #fff;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Measurement Data</h1>
+        <hr>
+        <div style="width: 400px; display: block; margin: 20px auto 30px auto;">
+            <table>
+                <tr>
+                    <td style="width: 200px;">Machine Status</td>
+                    <td style="width: 200px;" id="td_status"></td>
+                </tr>
+            </table>
+        </div>
+        <div style="width: 400px; margin: 0px auto 0px auto; display: block;">
+            <table>
+                <tr>
+                    <td style="width: 100px; background: #eee;">Data No.</td>
+                    <td style="background: #eee;">Value</td>
+                    <td style="background: #eee;">Status</td>
+                </tr>
+            </table>
+            <table id="table"></table>
+        </div>
+    </body>
+    <script>
+        const table = document.getElementById("table");
+        const td_status = document.getElementById("td_status");
+        const socket = io();
+
+        function socket_to_table(){
+            let xhr = new XMLHttpRequest();
+            xhr.open("GET", "./output.json");
+            xhr.send();
+            xhr.onreadystatechange = function(){
+                if(xhr.readyState == 4 && xhr.status == 200){
+                    let json = JSON.parse(xhr.responseText);
+                    td_status.innerHTML = json.status;
+                    switch (json.status){
+                        case "running":
+                            td_status.style.backgroundColor = "#00FF00";
+                            break;
+
+                        case "stopped":
+                            td_status.style.color = "#ff0000";
+                            break;
+                    }
+                    table.innerHTML = ``;
+                    for(i = 0; i < json.details.length; i++){
+                        let td_data = document.createElement("td");
+                        td_data.style.width = "100px";
+                        td_data.innerHTML = "Data " + (i + 1);
+
+                        let td_value = document.createElement("td");
+                        td_value.innerHTML = json.details[i].value;
+
+                        let td_data_status = document.createElement("td");
+                        td_data_status.innerHTML = json.details[i].status;
+
+                        switch (json.details[i].status){
+                            case "Defective":
+                                let color = "#FF0033";
+                                td_data.style.backgroundColor = color;
+                                td_value.style.backgroundColor = color;
+                                td_data_status.style.backgroundColor = color;
+                                break;
+                        }
+
+                        let tr = document.createElement("tr");
+                        tr.appendChild(td_data);
+                        tr.appendChild(td_value);
+                        tr.appendChild(td_data_status);
+                        table.prepend(tr);
+                    }
+                }
+            }
+        }
+
+        socket.on("first_send", function(){
+            socket_to_table();
+        });
+
+        socket.on("send_json", function(){
+            socket_to_table();
+        });
+    </script>
+</html>
